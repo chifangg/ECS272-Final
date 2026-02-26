@@ -1,0 +1,43 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+.shell{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar, .bottombar{
+  background: var(--bar);
+  color: var(--text);
+  padding: 15px 10px;
+  font-size: 16px;
+}
+
+.stage{
+  flex: 1;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stage-inner{
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.intro-overlay {
+  position: absolute;
+  inset: 0;
+  background: #6c778f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
