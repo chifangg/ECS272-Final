@@ -8,8 +8,8 @@
 4. npm run dev
 
 ## Project structure
-
-`src/
+```bash
+src/
 │
 ├── app/
 │   ├── App.tsx
@@ -39,7 +39,6 @@
 public/
 └── data/
     └── cities.csv
-`
 
-
+```
 TBC :D
