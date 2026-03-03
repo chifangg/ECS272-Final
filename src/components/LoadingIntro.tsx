@@ -1,28 +1,68 @@
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import "../styles/LoadingIntro.css";
 
-export function LoadingIntro() {
+import planePng from "../assets/plane_icon.png";
+
+type LoadingIntroProps = {
+  durationMs?: number;     
+  steps?: number;          
+  title?: string;
+  footer?: string;
+};
+
+export function LoadingIntro({
+  durationMs = 2200,
+  steps = 6,
+  title = "This is your Travel City Choices Tool",
+  footer = "ECS 272 final project dev. by group 7",
+}: LoadingIntroProps) {
+  const [step, setStep] = useState(1);
+
+
+  const stepEvery = useMemo(() => Math.max(120, Math.floor(durationMs / steps)), [durationMs, steps]);
+
+  useEffect(() => {
+    let cur = 1;
+    setStep(cur);
+
+    const id = window.setInterval(() => {
+      cur += 1;
+      if (cur > steps) {
+        window.clearInterval(id);
+        return;
+      }
+      setStep(cur);
+    }, stepEvery);
+
+    return () => window.clearInterval(id);
+  }, [stepEvery, steps]);
+
   return (
-    <div style={{
-      width: "100vw",
-      height: "100vh",
-      background: "#6c778f",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      position: "relative",
-      overflow: "hidden"
-    }}>
-      <motion.div
-        initial={{ x: -600 }}
-        animate={{ x: window.innerWidth + 200 }}
-        transition={{ duration: 5.6, ease: "linear" }}
-        style={{
-          fontSize: 80,
-          color: "white"
-        }}
-      >
-        ✈︎
-      </motion.div>
+    <div className="li-root">
+      <div className="li-top">{title}</div>
+
+      <div className="li-stage" aria-label="loading animation">
+        <div className="li-row">
+          {Array.from({ length: step }).map((_, i) => (
+            <div className="li-seg" key={i}>
+              <img className="li-plane" src={planePng} alt="" draggable={false} />
+              {i < step - 1 ? <Dots /> : null}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="li-bottom">{footer}</div>
+    </div>
+  );
+}
+
+function Dots() {
+  return (
+    <div className="li-dots" aria-hidden="true">
+      <span className="li-dot" />
+      <span className="li-dot" />
+      <span className="li-dot" />
     </div>
   );
 }

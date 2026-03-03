@@ -4,14 +4,15 @@ import { LoadingIntro } from "../components/LoadingIntro";
 
 export default function Intro() {
   const navigate = useNavigate();
+  const DURATION = 2200;
 
   useEffect(() => {
     const timer = setTimeout(() => {
       navigate("/home", { replace: true });
-    }, 2200);
+    }, DURATION);
 
     return () => clearTimeout(timer);
   }, [navigate]);
 
-  return <LoadingIntro />;
+  return <LoadingIntro durationMs={DURATION} steps={6} />;
 }
