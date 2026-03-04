@@ -1,0 +1,388 @@
+.ga-root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #d9d9d9;
+  overflow-x: hidden;
+}
+
+.ga-stage {
+  position: relative;
+  flex: 1;
+  min-height: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 0;
+}
+
+.ga-canvas {
+  position: relative;
+  width: min(1400px, calc(100vw - 56px));
+  height: min(820px, calc(100vh - 56px - 64px - 28px));
+  background: #efefef;
+  border-radius: 12px;
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+/* pins */
+.ga-pin {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
+  pointer-events: none;
+  user-select: none;
+}
+
+.ga-pin-tl {
+  top: 12px;
+  left: 12px;
+  transform: rotate(-10deg);
+}
+
+.ga-pin-tr {
+  top: 12px;
+  right: 12px;
+  transform: rotate(10deg);
+}
+
+/* header */
+.ga-header {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  user-select: none;
+}
+
+.ga-title {
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: 0.2px;
+}
+
+.ga-sub {
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.7;
+  line-height: 1.4;
+}
+
+/* scrolling sign（左側） */
+.ga-scrollHint {
+  position: absolute;
+  left: 14px;
+  top: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0.45;
+  user-select: none;
+  pointer-events: none;
+}
+
+.ga-scrollIcon {
+  width: 18px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  padding: 6px 0;
+}
+
+.ga-scrollIcon span {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  animation: gaPulse 1.2s ease-in-out infinite;
+}
+.ga-scrollIcon span:nth-child(2) { animation-delay: 0.15s; }
+.ga-scrollIcon span:nth-child(3) { animation-delay: 0.3s; }
+
+.ga-scrollText {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 11px;
+  transform: rotate(-90deg);
+  transform-origin: left top;
+  margin-left: 6px;
+}
+
+@keyframes gaPulse {
+  0%, 100% { opacity: 0.25; transform: translateY(-1px); }
+  50% { opacity: 0.9; transform: translateY(1px); }
+}
+
+/* carousel */
+.ga-carousel {
+  position: absolute;
+  left: 50%;
+  top: 150px;
+  transform: translateX(-50%);
+  width: min(1150px, calc(100% - 80px));
+  display: grid;
+  grid-template-columns: 48px 1fr 1.35fr 1fr 48px;
+  align-items: center;
+  gap: 18px;
+}
+
+.ga-nav {
+  height: 56px;
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  opacity: 0.55;
+  cursor: pointer;
+  user-select: none;
+}
+.ga-nav:hover { opacity: 0.85; }
+
+.ga-card {
+  position: relative;
+  background: #dcdcdc;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.ga-card-main { height: 260px; }
+.ga-card-side { height: 210px; opacity: 0.9; }
+
+.ga-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.75);
+  pointer-events: none;
+  user-select: none;
+}
+
+.ga-cap {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.75;
+}
+
+.ga-miniIcons {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  display: flex;
+  gap: 8px;
+  opacity: 0.7;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.ga-i {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.22);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  background: rgba(255,255,255,0.6);
+}
+.ga-dotIcon {
+  font-size: 14px;
+}
+
+/* bottom row */
+.ga-bottomRow {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  width: min(1150px, calc(100% - 80px));
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 22px;
+  align-items: end;
+}
+
+.ga-filterBox {
+  height: 160px;
+  background: rgba(170, 185, 195, 0.55);
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 18px;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+  display: grid;
+  place-items: center;
+}
+
+.ga-filterText {
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-weight: 700;
+  font-size: 12px;
+  opacity: 0.75;
+  line-height: 1.4;
+}
+
+.ga-related {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr 40px;
+  gap: 18px;
+  align-items: end;
+}
+
+.ga-relatedCol {
+  display: grid;
+  gap: 8px;
+}
+
+.ga-relatedLabel {
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.ga-relatedCard {
+  height: 160px;
+  background: rgba(175, 170, 190, 0.65);
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 14px;
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+  position: relative;
+}
+
+.ga-moreHint {
+  height: 160px;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  opacity: 0.6;
+  user-select: none;
+}
+
+
+
+.ga-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #d9d9d9;
+  overflow-x: hidden;
+}
+
+.ga-stage {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  background: #d9d9d9;
+  padding: 18px 18px 0;
+}
+
+.ga-canvas {
+  width: min(1400px, calc(100vw - 56px));
+  height: min(760px, calc(100vh - 56px - 64px - 28px));
+  background: #f1f1f1;            
+  border-radius: 12px;
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.18);
+  position: relative;
+  overflow: hidden;
+}
+
+
+.ga-marquee {
+  margin-top: 110px;     
+  padding: 0 64px;               
+  width: 100%;
+  overflow: hidden;
+}
+
+.ga-track {
+  display: flex;
+  gap: 26px;
+  width: max-content;
+  animation: gaMarquee 26s linear infinite;
+  will-change: transform;
+}
+
+
+.ga-marquee:hover .ga-track {
+  animation-play-state: paused;
+}
+
+
+@keyframes gaMarquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+
+.ga-card {
+  width: 320px;
+  height: 200px;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 12px;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 auto;
+  transition: transform 160ms ease, filter 160ms ease, opacity 160ms ease;
+}
+
+.ga-card.is-side {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+.ga-card.is-main {
+  transform: scale(1.03);
+  opacity: 1;
+}
+
+.ga-card:hover {
+  transform: scale(1.04);
+  filter: brightness(1.02);
+}
+
+
+.ga-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.98;
+}
+
+
+.ga-cap {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.ga-miniIcons {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  gap: 8px;
+  opacity: 0.6;
+}
+
+.ga-i, .ga-dotIcon {
+  font-size: 12px;
+}
