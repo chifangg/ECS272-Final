@@ -1,24 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
+import {TopBar} from "./TopBar";
+import {BottomBar} from "./BottomBar";
 import "../styles/LoadingIntro.css";
 
 import planePng from "../assets/plane_icon.png";
 
 type LoadingIntroProps = {
-  durationMs?: number;     
-  steps?: number;          
-  title?: string;
-  footer?: string;
+  durationMs?: number;
+  steps?: number;
 };
 
-export function LoadingIntro({
-  durationMs = 2200,
-  steps = 6,
-  title = "This is your Travel City Choices Tool",
-  footer = "ECS 272 final project dev. by group 7",
-}: LoadingIntroProps) {
+export function LoadingIntro({ durationMs = 2200, steps = 6 }: LoadingIntroProps) {
   const [step, setStep] = useState(1);
-
-
   const stepEvery = useMemo(() => Math.max(120, Math.floor(durationMs / steps)), [durationMs, steps]);
 
   useEffect(() => {
@@ -39,7 +32,7 @@ export function LoadingIntro({
 
   return (
     <div className="li-root">
-      <div className="li-top">{title}</div>
+      <TopBar />
 
       <div className="li-stage" aria-label="loading animation">
         <div className="li-row">
@@ -52,7 +45,7 @@ export function LoadingIntro({
         </div>
       </div>
 
-      <div className="li-bottom">{footer}</div>
+      <BottomBar />
     </div>
   );
 }

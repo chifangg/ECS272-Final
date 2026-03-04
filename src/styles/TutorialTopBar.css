@@ -1,0 +1,124 @@
+.ttb-root {
+  height: 56px;
+  width: 100%;
+  background: #b7b6c3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  box-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.12),
+    0 1000px 18px rgba(0, 0, 0, 0.12);
+}
+
+.ttb-title {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.75);
+  letter-spacing: 0.2px;
+  user-select: none;
+}
+
+.ttb-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  max-width: 55vw;
+}
+
+.ttb-hint {
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease;
+  flex: 0 1 auto;
+}
+
+.ttb-hint.is-on {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ttb-menuBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.85);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 140ms ease, opacity 140ms ease, filter 140ms ease;
+}
+
+.ttb-menuBtn:active {
+  transform: scale(0.98);
+}
+
+.ttb-menuBtn.is-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+}
+
+.ttb-burger {
+  width: 18px;
+  height: 14px;
+  display: grid;
+  gap: 3px;
+}
+
+.ttb-burger span {
+  display: block;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+
+
+
+.ttb-hintBubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.ttb-hand {
+  font-size: 18px;
+  opacity: 0.85;
+}
+
+.ttb-hintText {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.ttb-root {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  height: 56px;
+  width: 100%;
+  background: #b7b6c3;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+
+  box-shadow:
+    0 5px 0 rgba(0, 0, 0, 0.15),
+    0 12px 18px rgba(0, 0, 0, 0.12);
+}

@@ -1,0 +1,18 @@
+.page-fade-in {
+  animation: pageFadeIn 450ms ease forwards;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; filter: blur(0.6px); }
+  to   { opacity: 1; filter: blur(0px); }
+}
+
+
+.page-fade-out {
+  animation: pageFadeOut 350ms ease forwards;
+}
+
+@keyframes pageFadeOut {
+  from { opacity: 1; filter: blur(0px); }
+  to   { opacity: 0; filter: blur(0.8px); }
+}

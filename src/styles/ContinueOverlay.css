@@ -1,0 +1,147 @@
+.co-root {
+  height: 100vh;
+  width: 100%;
+  background: #cfd3db;
+  display: flex;
+  flex-direction: column;
+}
+
+.co-stage {
+  position: relative;
+  flex: 1;                
+  margin: 10px 14px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+}
+
+.co-top,
+.co-bottom {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  padding: 10px 14px;
+}
+
+
+
+.co-map {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(1200px, 88%);
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: contain;      
+  filter: grayscale(1);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+
+.co-globe {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.co-tl { top: 14px; left: 14px; }
+.co-tr { top: 14px; right: 14px; }
+.co-bl { bottom: 14px; left: 14px; }
+.co-br { bottom: 14px; right: 14px; }
+
+
+
+
+.co-modal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(430px, 86vw);
+  min-height: 150px;
+
+
+  transform: translate(-50%, -46%) scale(0.98);
+  opacity: 0;
+  filter: blur(2px);
+  pointer-events: none;
+
+  background: rgba(232, 237, 246, 0.92);
+  border-radius: 26px;
+  padding: 30px 28px 26px;
+
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.18),
+    0 2px 0 rgba(255, 255, 255, 0.55) inset;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(6px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+
+
+  transition:
+    opacity 420ms ease,
+    transform 420ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    filter 420ms ease;
+}
+
+.co-modal.is-open {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  filter: blur(0px);
+  pointer-events: auto;
+}
+
+
+
+.co-modalTitle {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  font-weight: 900;        
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.68);
+  text-align: center;
+  margin: 0;
+}
+
+.co-btn {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 0.25px;
+
+  padding: 10px 18px;
+  border-radius: 999px;      
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.94);
+
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+}
+
+.co-btn:hover {
+  transform: translateY(-1px);
+  background-color: rgba(122, 120, 120, 0.98);
+}
+
+.co-btn:active {
+  transform: translateY(0px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .co-modal {
+    transition: none !important;
+    filter: none !important;
+    transform: translate(-50%, -50%) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
