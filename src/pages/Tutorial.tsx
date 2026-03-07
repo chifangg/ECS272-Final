@@ -23,7 +23,7 @@ export default function Tutorial() {
     const t = window.setTimeout(() => {
       setMenuEnabled(true);
       setShowHint1(true);
-    }, 2000);
+    }, 1000);
 
     return () => window.clearTimeout(t);
   }, []);

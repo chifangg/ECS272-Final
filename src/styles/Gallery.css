@@ -27,7 +27,7 @@
   overflow: hidden;
 }
 
-/* pins */
+
 .ga-pin {
   position: absolute;
   width: 34px;
@@ -50,7 +50,7 @@
   transform: rotate(10deg);
 }
 
-/* header */
+
 .ga-header {
   position: absolute;
   top: 22px;
@@ -74,7 +74,7 @@
   line-height: 1.4;
 }
 
-/* scrolling sign（左側） */
+
 .ga-scrollHint {
   position: absolute;
   left: 14px;
@@ -121,7 +121,6 @@
   50% { opacity: 0.9; transform: translateY(1px); }
 }
 
-/* carousel */
 .ga-carousel {
   position: absolute;
   left: 50%;
@@ -200,7 +199,7 @@
   font-size: 14px;
 }
 
-/* bottom row */
+
 .ga-bottomRow {
   position: absolute;
   left: 50%;
@@ -328,61 +327,62 @@
 }
 
 
+
 .ga-card {
-  width: 320px;
-  height: 200px;
-  background: rgba(255,255,255,0.85);
-  border: 1px solid rgba(0,0,0,0.10);
-  border-radius: 12px;
-  box-shadow: 0 10px 22px rgba(0,0,0,0.10);
-  position: relative;
+  width: 400px;
+  height: 260px;
+}
+
+.ga-iframeWrap {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
-  flex: 0 0 auto;
-  transition: transform 160ms ease, filter 160ms ease, opacity 160ms ease;
-}
-
-.ga-card.is-side {
-  opacity: 0.9;
-  transform: scale(0.98);
-}
-
-.ga-card.is-main {
-  transform: scale(1.03);
-  opacity: 1;
-}
-
-.ga-card:hover {
-  transform: scale(1.04);
-  filter: brightness(1.02);
+  border-radius: 12px;
+  pointer-events: none;
 }
 
 
-.ga-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.98;
-}
-
-
-.ga-cap {
+.ga-iframeWrap .ga-iframe {
+  width: 700px;
+  height: 480px;
+  border: none;
+  pointer-events: none;
   position: absolute;
-  left: 12px;
-  bottom: 10px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 12px;
-  opacity: 0.75;
+  left: 25px;
+  top: -15px;
+  transform: scale(0.5);
+  transform-origin: top left;
 }
 
-.ga-miniIcons {
+.ga-iframeWrap--small .ga-iframe {
+  width: 700px;
+  height: 480px;
+  border: none;
+  pointer-events: none;
   position: absolute;
-  right: 10px;
-  bottom: 10px;
-  display: flex;
-  gap: 8px;
-  opacity: 0.6;
+  left: 10px;
+  top: -10px;
+  transform: scale(0.35);
+  transform-origin: top left;
 }
 
-.ga-i, .ga-dotIcon {
+.ga-openLink {
   font-size: 12px;
+  line-height: 1;
+  opacity: 0.7;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 120ms;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.22);
+  background: rgba(255,255,255,0.6);
+}
+.ga-openLink:hover { opacity: 1; }
+
+.ga-scrollHint {
+    display: none;
 }

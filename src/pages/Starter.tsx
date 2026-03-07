@@ -23,16 +23,27 @@ export default function Starter() {
     return () => timers.forEach((t) => window.clearTimeout(t));
   }, []);
 
-  useEffect(() => {
+    useEffect(() => {
     if (!hint) return;
 
-    const onKeyDown = () => {
-      navigate("/tutorial", { replace: true });
+    let done = false;
+    const go = () => {
+        if (done) return;
+        done = true;
+        navigate("/tutorial", { replace: true });
     };
 
+    const onKeyDown = () => go();
+    const onPointerDown = () => go();
+
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [hint, navigate]);
+    window.addEventListener("pointerdown", onPointerDown, { passive: true });
+
+    return () => {
+        window.removeEventListener("keydown", onKeyDown);
+        window.removeEventListener("pointerdown", onPointerDown);
+    };
+    }, [hint, navigate]);
 
   return (
     <div className="st-full">
