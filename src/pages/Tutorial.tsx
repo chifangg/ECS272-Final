@@ -72,7 +72,7 @@ export default function Tutorial() {
   }
 
   if (item === "explore") {
-    navigate("/home");
+    navigate("/explore");
     return;
   }
 

@@ -1,0 +1,204 @@
+.ex-tabbar {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 10px;
+  height: 90px;
+  border-radius: 14px;
+  background: rgba(236, 236, 236, 0.92);
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.14);
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+}
+
+.ex-tab {
+  flex: 1 1 0;
+  border: 0;
+  border-radius: 10px;
+  background: #c2cad5;
+  color: #111;
+  font-family: "Spline Sans Mono", monospace;
+  font-size: clamp(12px, 1.1vw, 19px);
+  font-weight: 700;
+  line-height: 1.15;
+  cursor: pointer;
+  transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
+}
+
+.ex-tab:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.03);
+}
+
+.ex-tab:active {
+  transform: translateY(0);
+}
+
+.ex-tab.is-active {
+  box-shadow: inset 0 0 0 3px rgba(28, 28, 28, 0.45);
+}
+
+.ex-tab:nth-child(2) {
+  background: #b7bbc6;
+}
+
+.ex-tab:nth-child(3) {
+  background: #b1b3bf;
+}
+
+.ex-page .tu-legend {
+  bottom: 136px;
+}
+
+.ex-page .tu-zoom {
+  bottom: 126px;
+}
+
+.ex-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.24);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+  z-index: 80;
+}
+
+.ex-modal-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ex-modal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(760px, 86vw);
+  height: min(380px, 56vh);
+  transform: translate(-50%, -50%);
+  border-radius: 22px;
+  background: #dedede;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.28);
+}
+
+.ex-modal-header {
+  height: 58px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+}
+
+.ex-modal-title {
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.ex-modal-close {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-family: "Spline Sans Mono", monospace;
+  font-weight: 700;
+}
+
+.ex-modal-body {
+  height: calc(100% - 58px);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 18px;
+  font-family: "Spline Sans Mono", monospace;
+  color: rgba(0, 0, 0, 0.78);
+}
+
+.ex-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ex-label {
+  width: 100%;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ex-spinner {
+  height: 42px;
+  min-width: 140px;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.24);
+  background: rgba(249, 247, 247, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 10px;
+}
+
+.ex-spinner-month {
+  min-width: 220px;
+}
+
+.ex-arrow {
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  font-weight: 700;
+  font-family: "Spline Sans Mono", monospace;
+}
+
+.ex-value {
+  min-width: 36px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ex-month {
+  min-width: 90px;
+}
+
+.ex-inline {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ex-checkrow {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.ex-checkbox {
+  width: 22px;
+  height: 22px;
+  border: 1px solid #8e8c8c;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ex-checklabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+}
