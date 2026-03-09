@@ -48,6 +48,7 @@ export function NormalTopBar({ title = "This is your Travel City Choices Tool" }
       return;
     }
     if (item === "main") {
+      navigate("/Home");
       closeMenu();
       return;
     }
