@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as d3 from "d3";
 import { TutorialTopBar } from "../components/TutorialTopBar";
@@ -55,16 +55,15 @@ const DURATION_OPTIONS = ["Short trip", "One week", "Long trip"];
 const MAP_BASE_WIDTH = 612;
 const MAP_BASE_HEIGHT = 250;
 
-const MAP_X_OFFSET = 0;
-const MAP_Y_OFFSET = -2;
-const MAP_SCALE_ADJUST = 0.99;
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 6;
+const ZOOM_STEP = 0.5;
+
 
 function coarseProjectToBase(lat: number, lng: number) {
   const x = ((lng + 180) / 360) * MAP_BASE_WIDTH;
   const y = ((90 - lat) / 180) * MAP_BASE_HEIGHT;
-  const cx = (x - MAP_BASE_WIDTH / 2) * MAP_SCALE_ADJUST + MAP_BASE_WIDTH / 2 + MAP_X_OFFSET;
-  const cy = (y - MAP_BASE_HEIGHT / 2) * MAP_SCALE_ADJUST + MAP_BASE_HEIGHT / 2 + MAP_Y_OFFSET;
-  return { x: cx, y: cy };
+  return { x, y };
 }
 
 function buildLandMask(img: HTMLImageElement) {
@@ -90,25 +89,9 @@ function buildLandMask(img: HTMLImageElement) {
   return mask;
 }
 
-function snapToNearestLand(x: number, y: number, landMask: Uint8Array) {
-  const ix = Math.round(x);
-  const iy = Math.round(y);
-  const inBound = (px: number, py: number) => px >= 0 && px < MAP_BASE_WIDTH && py >= 0 && py < MAP_BASE_HEIGHT;
-  const isLand = (px: number, py: number) => inBound(px, py) && landMask[py * MAP_BASE_WIDTH + px] === 1;
 
-  if (isLand(ix, iy)) return { x: ix, y: iy };
-
-  const maxRadius = 28;
-  for (let r = 1; r <= maxRadius; r += 1) {
-    for (let a = 0; a < 360; a += 10) {
-      const rad = (a * Math.PI) / 180;
-      const px = Math.round(ix + r * Math.cos(rad));
-      const py = Math.round(iy + r * Math.sin(rad));
-      if (isLand(px, py)) return { x: px, y: py };
-    }
-  }
-
-  return { x: ix, y: iy };
+function snapToNearestLand(x: number, y: number, _landMask: Uint8Array) {
+  return { x, y };
 }
 
 function parseDurations(raw: string | undefined): string[] {
@@ -123,6 +106,7 @@ function parseDurations(raw: string | undefined): string[] {
 }
 
 function getMatchScore(city: ExploreCity, exps: ExperienceKey[]) {
+  if (exps.length === 0) return 10; // no filter = show all
   return exps.reduce((best, key) => Math.max(best, city.scores[key]), 0);
 }
 
@@ -130,6 +114,7 @@ export default function Explore() {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const mapImgRef = useRef<HTMLImageElement | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [cities, setCities] = useState<ExploreCity[]>([]);
@@ -138,17 +123,24 @@ export default function Explore() {
 
   const [draftBudget, setDraftBudget] = useState("Any");
   const [draftDuration, setDraftDuration] = useState("Any");
-  const [draftExperiences, setDraftExperiences] = useState<ExperienceKey[]>(["culture"]);
+  const [draftExperiences, setDraftExperiences] = useState<ExperienceKey[]>([]);
 
   const [budgetLevel, setBudgetLevel] = useState("Any");
   const [duration, setDuration] = useState("Any");
-  const [experiences, setExperiences] = useState<ExperienceKey[]>(["culture"]);
+  const [experiences, setExperiences] = useState<ExperienceKey[]>([]);
 
   const [mapBox, setMapBox] = useState({ left: 0, top: 0, width: 0, height: 0 });
   const [hoveredCity, setHoveredCity] = useState<{ city: ExploreCity; x: number; y: number } | null>(null);
   const [landMask, setLandMask] = useState<Uint8Array | null>(null);
   const [selectedCity, setSelectedCity] = useState<ExploreCity | null>(null);
   const [planDurationDays, setPlanDurationDays] = useState(5);
+
+  // Zoom state
+  const [zoom, setZoom] = useState(1);
+  const [panX, setPanX] = useState(0);
+  const [panY, setPanY] = useState(0);
+  const isPanningRef = useRef(false);
+  const lastPanPosRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     let cancelled = false;
@@ -259,6 +251,66 @@ export default function Explore() {
     return () => img.removeEventListener("load", handleLoad);
   }, []);
 
+
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (!el) return;
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      setZoom((prevZoom) => {
+        const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
+        const newZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, prevZoom + delta));
+        const ratio = newZoom / prevZoom;
+
+        setPanX((px) => mouseX - ratio * (mouseX - px));
+        setPanY((py) => mouseY - ratio * (mouseY - py));
+
+        return newZoom;
+      });
+    };
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    if (zoom <= 1) return;
+    isPanningRef.current = true;
+    lastPanPosRef.current = { x: e.clientX, y: e.clientY };
+  }, [zoom]);
+
+  const onMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isPanningRef.current) return;
+    const dx = e.clientX - lastPanPosRef.current.x;
+    const dy = e.clientY - lastPanPosRef.current.y;
+    lastPanPosRef.current = { x: e.clientX, y: e.clientY };
+    setPanX((px) => px + dx);
+    setPanY((py) => py + dy);
+  }, []);
+
+  const onMouseUp = useCallback(() => {
+    isPanningRef.current = false;
+  }, []);
+
+
+  const clampedPan = useMemo(() => {
+    if (!canvasRef.current) return { x: panX, y: panY };
+    const cw = canvasRef.current.clientWidth;
+    const ch = canvasRef.current.clientHeight;
+    const maxX = (cw * zoom - cw) / 2 + cw * (zoom - 1) / zoom;
+    const maxY = (ch * zoom - ch) / 2 + ch * (zoom - 1) / zoom;
+    return {
+      x: Math.max(-maxX, Math.min(maxX, panX)),
+      y: Math.max(-maxY, Math.min(maxY, panY)),
+    };
+  }, [panX, panY, zoom]);
+
   const budgetOptions = useMemo(() => {
     const unique = Array.from(new Set(cities.map((c) => c.budgetLevel))).sort();
     return ["Any", ...unique];
@@ -318,7 +370,6 @@ export default function Explore() {
   function toggleDraftExperience(key: ExperienceKey) {
     setDraftExperiences((prev) => {
       if (prev.includes(key)) {
-        if (prev.length === 1) return prev;
         return prev.filter((v) => v !== key);
       }
       return [...prev, key];
@@ -330,6 +381,38 @@ export default function Explore() {
     setDuration(draftDuration);
     setExperiences(draftExperiences);
     setHoveredCity(null);
+  }
+
+  function clearFilter() {
+    setDraftBudget("Any");
+    setDraftDuration("Any");
+    setDraftExperiences([]);
+    setBudgetLevel("Any");
+    setDuration("Any");
+    setExperiences([]);
+    setHoveredCity(null);
+    setSelectedCity(null);
+  }
+
+  function zoomIn() {
+    setZoom((z) => Math.min(MAX_ZOOM, z + ZOOM_STEP));
+  }
+
+  function zoomOut() {
+    setZoom((z) => {
+      const newZoom = Math.max(MIN_ZOOM, z - ZOOM_STEP);
+      if (newZoom === MIN_ZOOM) {
+        setPanX(0);
+        setPanY(0);
+      }
+      return newZoom;
+    });
+  }
+
+  function resetZoom() {
+    setZoom(1);
+    setPanX(0);
+    setPanY(0);
   }
 
   function goToPlanPage() {
@@ -355,34 +438,64 @@ export default function Explore() {
     <div className="tu-root ex-page" aria-label="explore page">
       <TutorialTopBar menuEnabled={true} onMenuClick={() => setMenuOpen((v) => !v)} showMenuHint={false} />
 
-      <div className="tu-stage">
-        <div className="tu-canvas ex-canvas" ref={canvasRef}>
-          <img className="tu-map" src={worldMap} alt="world map" draggable={false} ref={mapImgRef} />
+      <div className="tu-stage ex-stage">
 
-          <img className="tu-pin tu-pin-tl" src={pinIcon} alt="" draggable={false} />
-          <img className="tu-pin tu-pin-tr" src={pinIcon} alt="" draggable={false} />
+        <div
+          className="tu-canvas ex-canvas"
+          ref={canvasRef}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseUp}
+          style={{ cursor: zoom > 1 ? "grab" : "default" }}
+        >
+
+          <div className="ex-top-hint">
+            Pick filters below, then click Apply | click a dot to select a city for travel plan generation
+          </div>
+
+
+          <div
+            className="ex-zoom-layer"
+            ref={mapContainerRef}
+            style={{
+              transform: `translate(${clampedPan.x}px, ${clampedPan.y}px) scale(${zoom})`,
+              transformOrigin: "center center",
+            }}
+          >
+            <img className="tu-map" src={worldMap} alt="world map" draggable={false} ref={mapImgRef} />
+            <img className="tu-pin tu-pin-tl" src={pinIcon} alt="" draggable={false} />
+            <img className="tu-pin tu-pin-tr" src={pinIcon} alt="" draggable={false} />
+          </div>
+
 
           <div className="ex-map-points" aria-label="filtered city markers">
-            {projectedCities.slice(0, 250).map(({ city, x, y }) => (
-              <button
-                key={city.id}
-                type="button"
-                className={`ex-point ${selectedCity?.id === city.id ? "is-selected" : ""}`}
-                style={{ left: `${x}px`, top: `${y}px` }}
-                onMouseEnter={() => setHoveredCity({ city, x, y })}
-                onMouseMove={() => setHoveredCity({ city, x, y })}
-                onMouseLeave={() => setHoveredCity(null)}
-                onClick={() => setSelectedCity(city)}
-              />
-            ))}
+            {projectedCities.slice(0, 250).map(({ city, x, y }) => {
+              const cw = canvasRef.current?.clientWidth ?? 0;
+              const ch = canvasRef.current?.clientHeight ?? 0;
+              const sx = (x - cw / 2) * zoom + cw / 2 + clampedPan.x;
+              const sy = (y - ch / 2) * zoom + ch / 2 + clampedPan.y;
+              return (
+                <button
+                  key={city.id}
+                  type="button"
+                  className={`ex-point ${selectedCity?.id === city.id ? "is-selected" : ""}`}
+                  style={{ left: `${sx}px`, top: `${sy}px` }}
+                  onMouseEnter={() => setHoveredCity({ city, x: sx, y: sy })}
+                  onMouseLeave={() => setHoveredCity(null)}
+                  onClick={() => setSelectedCity(city)}
+                />
+              );
+            })}
           </div>
+
 
           {hoveredCity ? (
             <div
               className="ex-hover-card"
               style={{
-                left: `${Math.min(hoveredCity.x + 14, Math.max(12, mapBox.width + mapBox.left - 290))}px`,
-                top: `${Math.max(12, hoveredCity.y - 14)}px`,
+                left: `${Math.min(hoveredCity.x + 14, (canvasRef.current?.clientWidth ?? 600) - 290)}px`,
+                top: `${Math.max(40, hoveredCity.y - 14)}px`,
               }}
             >
               <div className="ex-hover-title">
@@ -390,20 +503,24 @@ export default function Explore() {
               </div>
               <div className="ex-hover-meta">Budget: {hoveredCity.city.budgetLevel}</div>
               <div className="ex-hover-meta">Durations: {hoveredCity.city.idealDurations.join(", ") || "N/A"}</div>
-              <div className="ex-hover-meta">Selected experiences: {experiences.map((k) => EXPERIENCE_LABELS[k]).join(", ")}</div>
+              <div className="ex-hover-meta">Experiences: {experiences.map((k) => EXPERIENCE_LABELS[k]).join(", ")}</div>
               <div className="ex-hover-desc">{hoveredCity.city.shortDescription}</div>
-              <button type="button" className="ex-hover-pick" onClick={() => setSelectedCity(hoveredCity.city)}>
-                Use This City
-              </button>
+              <div className="ex-hover-cta">Click the dot to select this city</div>
             </div>
           ) : null}
 
-          {selectedCity && selectedProjected ? (
+
+          {selectedCity && selectedProjected ? (() => {
+            const cw = canvasRef.current?.clientWidth ?? 0;
+            const ch = canvasRef.current?.clientHeight ?? 0;
+            const sx = (selectedProjected.x - cw / 2) * zoom + cw / 2 + clampedPan.x;
+            const sy = (selectedProjected.y - ch / 2) * zoom + ch / 2 + clampedPan.y;
+            return (
             <div
               className="ex-city-popup"
               style={{
-                left: `${Math.min(selectedProjected.x + 16, Math.max(10, mapBox.left + mapBox.width - 270))}px`,
-                top: `${Math.max(10, selectedProjected.y - 10)}px`,
+                left: `${Math.min(sx + 16, Math.max(10, cw - 270))}px`,
+                top: `${Math.max(10, sy - 10)}px`,
               }}
             >
               <button type="button" className="ex-city-popup-close" onClick={() => setSelectedCity(null)}>
@@ -428,7 +545,8 @@ export default function Explore() {
                 Create Your Plan
               </button>
             </div>
-          ) : null}
+            );
+          })() : null}
 
           <div className="tu-legend" aria-label="legend panel">
             <div className="tu-legendTitle">Filtered results</div>
@@ -443,58 +561,70 @@ export default function Explore() {
             {loadError ? <div className="tu-legendEtc">Error: {loadError}</div> : <div className="tu-legendEtc">Top 250 points shown</div>}
           </div>
 
-          <div className="tu-zoom" aria-label="zoom hint">
-            Pick filters, then click Apply.
+
+          <div className="ex-zoom-controls" aria-label="zoom controls">
+            <button type="button" className="ex-zoom-btn" onClick={zoomIn} title="Zoom in" disabled={zoom >= MAX_ZOOM}>+</button>
+            <button type="button" className="ex-zoom-btn ex-zoom-reset" onClick={resetZoom} title="Reset zoom" disabled={zoom === 1}>⊙</button>
+            <button type="button" className="ex-zoom-btn" onClick={zoomOut} title="Zoom out" disabled={zoom <= MIN_ZOOM}>−</button>
           </div>
 
-          <div className="ex-filterbar" aria-label="interaction filters">
-            <div className="ex-control">
-              <label htmlFor="budget-filter">Budget level</label>
-              <select id="budget-filter" value={draftBudget} onChange={(e) => setDraftBudget(e.target.value)}>
-                {budgetOptions.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-            </div>
 
-            <div className="ex-control">
-              <label>Experience (multi-select)</label>
-              <div className="ex-multi">
-                {EXPERIENCE_OPTIONS.map((opt) => {
-                  const checked = draftExperiences.includes(opt.key);
-                  return (
-                    <button
-                      key={opt.key}
-                      type="button"
-                      className={`ex-chip ${checked ? "is-on" : ""}`}
-                      onClick={() => toggleDraftExperience(opt.key)}
-                    >
-                      {opt.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+          <div className="ex-match-count">
+            {loading ? "Loading…" : `${filteredCities.length} matches | ${Math.min(filteredCities.length, 250)} shown`}
+          </div>
+        </div>
 
-            <div className="ex-control">
-              <label htmlFor="duration-filter">Travel duration</label>
-              <select id="duration-filter" value={draftDuration} onChange={(e) => setDraftDuration(e.target.value)}>
-                <option value="Any">Any</option>
-                {DURATION_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-            </div>
 
+        <div className="ex-filterbar" aria-label="interaction filters">
+          <div className="ex-control">
+            <label htmlFor="budget-filter">Budget level</label>
+            <select id="budget-filter" value={draftBudget} onChange={(e) => setDraftBudget(e.target.value)}>
+              {budgetOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="ex-control">
+            <label>Experience (multi-select)</label>
+            <div className="ex-multi">
+              {EXPERIENCE_OPTIONS.map((opt) => {
+                const checked = draftExperiences.includes(opt.key);
+                return (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    className={`ex-chip ${checked ? "is-on" : ""}`}
+                    onClick={() => toggleDraftExperience(opt.key)}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="ex-control">
+            <label htmlFor="duration-filter">Travel duration</label>
+            <select id="duration-filter" value={draftDuration} onChange={(e) => setDraftDuration(e.target.value)}>
+              <option value="Any">Any</option>
+              {DURATION_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="ex-filterbar-actions">
             <button type="button" className="ex-apply" onClick={applyFilter}>
               Apply Filter
             </button>
-
-            <div className="ex-count">{loading ? "Loading" : `${filteredCities.length} matches`}</div>
+            <button type="button" className="ex-clear" onClick={clearFilter}>
+              Clear
+            </button>
           </div>
         </div>
       </div>
