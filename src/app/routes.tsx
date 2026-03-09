@@ -6,6 +6,7 @@ import Explore from "../pages/Explore";
 import IntroAfterLoad from "../pages/IntroAfterLoad";
 import Starter from "../pages/Starter";
 import Tutorial from "../pages/Tutorial";
+import TravelPlan from "../pages/TravelPlan";
 
 
 export const router = createBrowserRouter([
@@ -16,4 +17,5 @@ export const router = createBrowserRouter([
   { path: "/intro_after_load", element: <IntroAfterLoad /> },
   { path: "/starter", element: <Starter /> },
   { path: "/tutorial", element: <Tutorial /> },
+  { path: "/travel-plan", element: <TravelPlan /> },
 ]);

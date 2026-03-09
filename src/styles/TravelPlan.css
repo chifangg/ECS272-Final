@@ -1,0 +1,85 @@
+.tp-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #d8dbe0;
+}
+
+.tp-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.tp-card {
+  width: min(980px, 94vw);
+  height: min(72vh, 760px);
+  border-radius: 16px;
+  background: #f1f2f4;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 12px;
+}
+
+.tp-head {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.14);
+  padding-bottom: 10px;
+}
+
+.tp-title {
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.tp-sub {
+  margin-top: 4px;
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.tp-loading,
+.tp-error {
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 14px;
+}
+
+.tp-error {
+  color: #8a1d1d;
+}
+
+.tp-plan {
+  flex: 1;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow: auto;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 12px;
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.tp-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.tp-actions button {
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: #c4d3e3;
+  padding: 0 12px;
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
