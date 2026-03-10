@@ -93,6 +93,18 @@
   z-index: 9;
 }
 
+.ex-point.is-match-mid {
+  background: #3f86c0;
+  box-shadow: 0 0 0 2px rgba(63, 134, 192, 0.35);
+}
+
+.ex-point.is-match-strong {
+  background: #1f5f97;
+  box-shadow: 0 0 0 3px rgba(31, 95, 151, 0.42);
+  transform: translate(-50%, -50%) scale(1.28);
+  z-index: 8;
+}
+
 
 .ex-hover-card {
   position: absolute;
@@ -139,6 +151,64 @@
   font-weight: 700;
   color: #1d5fa3;
   letter-spacing: 0.02em;
+}
+
+.ex-hover-compare {
+  width: min(420px, 62vw);
+}
+
+.ex-hover-compare-title {
+  margin-bottom: 6px;
+}
+
+.ex-hover-compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.ex-hover-col {
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(236, 241, 246, 0.7);
+  padding: 6px 7px;
+}
+
+.ex-hover-col.is-better {
+  border-color: rgba(29, 95, 163, 0.5);
+  background: rgba(187, 217, 244, 0.68);
+  box-shadow: inset 0 0 0 1px rgba(29, 95, 163, 0.16);
+}
+
+.ex-hover-col-tag {
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.ex-hover-exp-list {
+  margin-top: 6px;
+  display: grid;
+  gap: 4px;
+}
+
+.ex-hover-exp-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.ex-hover-exp-item.is-selected {
+  background: rgba(29, 95, 163, 0.16);
+  border: 1px solid rgba(29, 95, 163, 0.45);
+  color: #1a4d80;
 }
 
 
@@ -362,6 +432,12 @@
 @media (max-width: 600px) {
   .ex-filterbar { grid-template-columns: 1fr; }
   .ex-apply, .ex-count { grid-column: 1; }
+  .ex-hover-compare {
+    width: min(330px, 86vw);
+  }
+  .ex-hover-compare-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 

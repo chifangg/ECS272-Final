@@ -110,6 +110,18 @@ function getMatchScore(city: ExploreCity, exps: ExperienceKey[]) {
   return exps.reduce((best, key) => Math.max(best, city.scores[key]), 0);
 }
 
+function getTopExperience(city: ExploreCity): ExperienceKey {
+  let top: ExperienceKey = "culture";
+  let topScore = city.scores[top];
+  for (const option of EXPERIENCE_OPTIONS) {
+    if (city.scores[option.key] > topScore) {
+      top = option.key;
+      topScore = city.scores[option.key];
+    }
+  }
+  return top;
+}
+
 export default function Explore() {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLDivElement | null>(null);
@@ -131,9 +143,11 @@ export default function Explore() {
 
   const [mapBox, setMapBox] = useState({ left: 0, top: 0, width: 0, height: 0 });
   const [hoveredCity, setHoveredCity] = useState<{ city: ExploreCity; x: number; y: number } | null>(null);
+  const [compareCity, setCompareCity] = useState<ExploreCity | null>(null);
   const [landMask, setLandMask] = useState<Uint8Array | null>(null);
   const [selectedCity, setSelectedCity] = useState<ExploreCity | null>(null);
   const [planDurationDays, setPlanDurationDays] = useState(5);
+  const lastHoveredCityRef = useRef<ExploreCity | null>(null);
 
   // Zoom state
   const [zoom, setZoom] = useState(1);
@@ -360,6 +374,41 @@ export default function Explore() {
     []
   );
 
+  const selectedExperienceLabels = useMemo(() => {
+    if (experiences.length === 0) return "All experiences";
+    return experiences.map((k) => EXPERIENCE_LABELS[k]).join(", ");
+  }, [experiences]);
+
+  const compareMetrics = useMemo(() => {
+    if (!hoveredCity || !compareCity || hoveredCity.city.id === compareCity.id) return null;
+    const current = hoveredCity.city;
+    const previousMatch = getMatchScore(compareCity, experiences);
+    const currentMatch = getMatchScore(current, experiences);
+    return {
+      previous: compareCity,
+      current,
+      previousMatch,
+      currentMatch,
+      previousTop: getTopExperience(compareCity),
+      currentTop: getTopExperience(current),
+      previousIsBetter: previousMatch > currentMatch,
+      currentIsBetter: currentMatch > previousMatch,
+    };
+  }, [compareCity, experiences, hoveredCity]);
+
+  function onPointEnter(city: ExploreCity, x: number, y: number) {
+    const previous = lastHoveredCityRef.current;
+    if (previous && previous.id !== city.id) {
+      setCompareCity(previous);
+    }
+    setHoveredCity({ city, x, y });
+    lastHoveredCityRef.current = city;
+  }
+
+  function onPointLeave(cityId: string) {
+    setHoveredCity((current) => (current?.city.id === cityId ? null : current));
+  }
+
   function onPick(item: MenuKey) {
     if (item === "gallery") return navigate("/gallery");
     if (item === "explore") return navigate("/explore");
@@ -381,6 +430,8 @@ export default function Explore() {
     setDuration(draftDuration);
     setExperiences(draftExperiences);
     setHoveredCity(null);
+    setCompareCity(null);
+    lastHoveredCityRef.current = null;
   }
 
   function clearFilter() {
@@ -391,6 +442,8 @@ export default function Explore() {
     setDuration("Any");
     setExperiences([]);
     setHoveredCity(null);
+    setCompareCity(null);
+    lastHoveredCityRef.current = null;
     setSelectedCity(null);
   }
 
@@ -451,7 +504,7 @@ export default function Explore() {
         >
 
           <div className="ex-top-hint">
-            Pick filters below, then click Apply | click a dot to select a city for travel plan generation
+            Pick filters below, then click Apply | hover cities to compare | click a dot to select for plan generation
           </div>
 
 
@@ -475,14 +528,23 @@ export default function Explore() {
               const ch = canvasRef.current?.clientHeight ?? 0;
               const sx = (x - cw / 2) * zoom + cw / 2 + clampedPan.x;
               const sy = (y - ch / 2) * zoom + ch / 2 + clampedPan.y;
+              const matchScore = getMatchScore(city, experiences);
+              const matchClass =
+                experiences.length === 0
+                  ? ""
+                  : matchScore >= 8
+                    ? "is-match-strong"
+                    : matchScore >= 6
+                      ? "is-match-mid"
+                      : "";
               return (
                 <button
                   key={city.id}
                   type="button"
-                  className={`ex-point ${selectedCity?.id === city.id ? "is-selected" : ""}`}
+                  className={`ex-point ${selectedCity?.id === city.id ? "is-selected" : ""} ${matchClass}`}
                   style={{ left: `${sx}px`, top: `${sy}px` }}
-                  onMouseEnter={() => setHoveredCity({ city, x: sx, y: sy })}
-                  onMouseLeave={() => setHoveredCity(null)}
+                  onMouseEnter={() => onPointEnter(city, sx, sy)}
+                  onMouseLeave={() => onPointLeave(city.id)}
                   onClick={() => setSelectedCity(city)}
                 />
               );
@@ -490,7 +552,62 @@ export default function Explore() {
           </div>
 
 
-          {hoveredCity ? (
+          {hoveredCity && compareMetrics ? (
+            <div
+              className="ex-hover-card ex-hover-compare"
+              style={{
+                left: `${Math.min(hoveredCity.x + 14, (canvasRef.current?.clientWidth ?? 600) - 440)}px`,
+                top: `${Math.max(40, hoveredCity.y - 14)}px`,
+              }}
+            >
+              <div className="ex-hover-title ex-hover-compare-title">
+                Compare Cities
+              </div>
+              <div className="ex-hover-compare-grid">
+                <div className={`ex-hover-col ${compareMetrics.previousIsBetter ? "is-better" : ""}`}>
+                  <div className="ex-hover-meta ex-hover-col-tag">Previous</div>
+                  <div className="ex-hover-title">
+                    {compareMetrics.previous.city}, {compareMetrics.previous.country}
+                  </div>
+                  <div className="ex-hover-meta">Budget: {compareMetrics.previous.budgetLevel}</div>
+                  <div className="ex-hover-meta">Durations: {compareMetrics.previous.idealDurations.join(", ") || "N/A"}</div>
+                  <div className="ex-hover-meta">Best: {EXPERIENCE_LABELS[compareMetrics.previousTop]}</div>
+                  <div className="ex-hover-meta">Match: {compareMetrics.previousMatch}/10</div>
+                  {experiences.length > 0 ? (
+                    <div className="ex-hover-exp-list">
+                      {experiences.map((key) => (
+                        <div key={`${compareMetrics.previous.id}-${key}`} className="ex-hover-exp-item is-selected">
+                          <span>{EXPERIENCE_LABELS[key]}</span>
+                          <strong>{compareMetrics.previous.scores[key]}/10</strong>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+                <div className={`ex-hover-col ${compareMetrics.currentIsBetter ? "is-better" : ""}`}>
+                  <div className="ex-hover-meta ex-hover-col-tag">Current</div>
+                  <div className="ex-hover-title">
+                    {compareMetrics.current.city}, {compareMetrics.current.country}
+                  </div>
+                  <div className="ex-hover-meta">Budget: {compareMetrics.current.budgetLevel}</div>
+                  <div className="ex-hover-meta">Durations: {compareMetrics.current.idealDurations.join(", ") || "N/A"}</div>
+                  <div className="ex-hover-meta">Best: {EXPERIENCE_LABELS[compareMetrics.currentTop]}</div>
+                  <div className="ex-hover-meta">Match: {compareMetrics.currentMatch}/10</div>
+                  {experiences.length > 0 ? (
+                    <div className="ex-hover-exp-list">
+                      {experiences.map((key) => (
+                        <div key={`${compareMetrics.current.id}-${key}`} className="ex-hover-exp-item is-selected">
+                          <span>{EXPERIENCE_LABELS[key]}</span>
+                          <strong>{compareMetrics.current.scores[key]}/10</strong>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+              <div className="ex-hover-cta">Focus: {selectedExperienceLabels}</div>
+            </div>
+          ) : hoveredCity ? (
             <div
               className="ex-hover-card"
               style={{
@@ -503,9 +620,21 @@ export default function Explore() {
               </div>
               <div className="ex-hover-meta">Budget: {hoveredCity.city.budgetLevel}</div>
               <div className="ex-hover-meta">Durations: {hoveredCity.city.idealDurations.join(", ") || "N/A"}</div>
-              <div className="ex-hover-meta">Experiences: {experiences.map((k) => EXPERIENCE_LABELS[k]).join(", ")}</div>
+              <div className="ex-hover-meta">Match: {getMatchScore(hoveredCity.city, experiences)}/10</div>
+              {experiences.length > 0 ? (
+                <div className="ex-hover-exp-list">
+                  {experiences.map((key) => (
+                    <div key={`${hoveredCity.city.id}-${key}`} className="ex-hover-exp-item is-selected">
+                      <span>{EXPERIENCE_LABELS[key]}</span>
+                      <strong>{hoveredCity.city.scores[key]}/10</strong>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="ex-hover-meta">Experiences: {selectedExperienceLabels}</div>
+              )}
               <div className="ex-hover-desc">{hoveredCity.city.shortDescription}</div>
-              <div className="ex-hover-cta">Click the dot to select this city</div>
+              <div className="ex-hover-cta">Hover another city to compare</div>
             </div>
           ) : null}
 
