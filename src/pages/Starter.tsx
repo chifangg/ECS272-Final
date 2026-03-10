@@ -30,7 +30,7 @@ export default function Starter() {
     const go = () => {
         if (done) return;
         done = true;
-        navigate("/tutorial", { replace: true });
+        navigate("/tradeoff", { replace: true });
     };
 
     const onKeyDown = () => go();

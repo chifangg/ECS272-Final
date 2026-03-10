@@ -7,6 +7,7 @@ import IntroAfterLoad from "../pages/IntroAfterLoad";
 import Starter from "../pages/Starter";
 import Tutorial from "../pages/Tutorial";
 import TravelPlan from "../pages/TravelPlan";
+import Tradeoff from "../pages/Tradeoff";
 
 
 export const router = createBrowserRouter([
@@ -18,4 +19,5 @@ export const router = createBrowserRouter([
   { path: "/starter", element: <Starter /> },
   { path: "/tutorial", element: <Tutorial /> },
   { path: "/travel-plan", element: <TravelPlan /> },
+  { path: "/tradeoff", element: <Tradeoff /> },
 ]);

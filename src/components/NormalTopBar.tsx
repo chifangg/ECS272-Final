@@ -6,9 +6,10 @@ type MenuKey = "gallery" | "tutorial" | "explore" | "main";
 
 type Props = {
   title?: string;
+  showMenuHint?: boolean;
 };
 
-export function NormalTopBar({ title = "This is your Travel City Choices Tool" }: Props) {
+export function NormalTopBar({ title = "This is your Travel City Choices Tool", showMenuHint = false }: Props) {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -43,8 +44,10 @@ export function NormalTopBar({ title = "This is your Travel City Choices Tool" }
       return;
     }
     if (item === "tutorial") {
-      navigate("/tutorial");
-      closeMenu();
+      localStorage.removeItem("gallery-toured");
+      localStorage.removeItem("home-toured");
+      localStorage.removeItem("explore-toured");
+      window.location.href = "/tutorial";
       return;
     }
     if (item === "main") {
@@ -60,6 +63,15 @@ export function NormalTopBar({ title = "This is your Travel City Choices Tool" }
         <div className="ntb-title">{title}</div>
 
         <div className="ntb-right">
+          {showMenuHint && !menuOpen && (
+            <div className="ntb-hint" aria-live="polite">
+              <div className="ntb-hintBubble">
+                <span className="ntb-hand" aria-hidden="true">☞</span>
+                <span className="ntb-hintText">click here!</span>
+              </div>
+              <div className="ntb-hintArrow" />
+            </div>
+          )}
           <button className="ntb-menuBtn" onClick={toggleMenu} aria-label="menu" type="button">
             <span className="ntb-burger" aria-hidden="true">
               <span />
@@ -69,7 +81,6 @@ export function NormalTopBar({ title = "This is your Travel City Choices Tool" }
           </button>
         </div>
       </div>
-
 
       <div className={`ntb-menuOverlay ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen}>
         <div className="ntb-menuScrim" onClick={closeMenu} />
@@ -85,6 +96,15 @@ export function NormalTopBar({ title = "This is your Travel City Choices Tool" }
               {it.label}
             </button>
           ))}
+          {showMenuHint && (
+            <div className="ntb-arcHint">
+              <div className="ntb-hintBubble">
+                <span className="ntb-hand" aria-hidden="true">☞</span>
+                <span className="ntb-hintText">click here!</span>
+              </div>
+              <div className="ntb-hintArrow ntb-hintArrow--down" />
+            </div>
+          )}
         </div>
       </div>
     </>

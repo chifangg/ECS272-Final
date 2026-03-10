@@ -1,14 +1,35 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import * as d3 from "d3";
 import { TutorialTopBar } from "../components/TutorialTopBar";
 import { BottomBar } from "../components/BottomBar";
 
 import "../styles/Tutorial.css";
 import "../styles/Home.css";
+import "../styles/Gallery.css";
 
 import worldMap from "../assets/world_map.svg";
 import pinIcon from "../assets/pin.png";
+
+const TOUR_KEY = "home-toured";
+
+const HOME_TOUR_STEPS = [
+  {
+    id: "welcome",
+    title: "Welcome to Main Viz!",
+    body: "This is the full interactive world map. 560 cities are plotted and ranked by weighted travel style scores. Each colored dot represents a city's top category.",
+  },
+  {
+    id: "factors",
+    title: "Choose your travel style",
+    body: "Click the factor cards below the map to toggle which travel styles are shown. You can select multiple at once. Each style has its own scoring formula.",
+  },
+  {
+    id: "dots",
+    title: "Explore cities",
+    body: "Hover over any dot to see the city's name, description, and scores across all 9 categories. Scroll to zoom in, and drag to pan around the map.",
+  },
+];
 
 type ExperienceKey =
   | "culture" | "adventure" | "nature" | "beaches"
@@ -141,6 +162,26 @@ export default function Home() {
   const [panY, setPanY] = useState(0);
   const isPanningRef = useRef(false);
   const lastPanPosRef = useRef({ x: 0, y: 0 });
+
+
+  const location = useLocation();
+  const forceTour = (location.state as any)?.tutorial === true;
+  const [tourStep, setTourStep] = useState<number | null>(null);
+  const [showMenuHint, setShowMenuHint] = useState(false);
+
+  useEffect(() => {
+    if (forceTour || !localStorage.getItem(TOUR_KEY)) {
+      setTourStep(0);
+    }
+  }, [forceTour]);
+
+
+  useEffect(() => {
+    if (tourStep !== null) return; 
+    const alreadyToured = localStorage.getItem(TOUR_KEY);
+    if (!alreadyToured) return; 
+
+  }, [tourStep]);
 
 
   useEffect(() => {
@@ -296,7 +337,7 @@ export default function Home() {
 
   return (
     <div className="tu-root">
-      <TutorialTopBar menuEnabled={true} onMenuClick={() => setMenuOpen((v) => !v)} showMenuHint={false} />
+      <TutorialTopBar menuEnabled={true} onMenuClick={() => setMenuOpen((v) => !v)} showMenuHint={showMenuHint} />
 
       <div className="tu-stage mv-stage">
         <div
@@ -493,14 +534,79 @@ export default function Home() {
         <div className="tu-menuArc">
           {(["gallery", "tutorial", "explore", "main"] as const).map((key) => (
             <button key={key} className={`tu-menuItem tu-${key === "gallery" ? "tl" : key === "tutorial" ? "tr" : key === "explore" ? "bl" : "br"}`}
-              onClick={() => navigate(key === "main" ? "/home" : `/${key}`)} type="button">
+              onClick={() => {
+                if (key === "tutorial") {
+                  localStorage.removeItem("gallery-toured");
+                  localStorage.removeItem("home-toured");
+                  localStorage.removeItem("explore-toured");
+                  window.location.href = "/tutorial";
+                  return;
+                }
+                navigate(key === "main" ? "/home" : `/${key}`);
+              }} type="button">
               {key === "gallery" ? "Viz gallery" : key === "tutorial" ? "Tutorial" : key === "explore" ? "Explore\nyour own" : "Main Viz"}
             </button>
           ))}
+          {showMenuHint && menuOpen && (
+            <div className="tu-arcHint tu-arcHint--bl">
+              <div className="tu-hintBubble">
+                <span className="tu-hand">☞</span>
+                <span className="tu-hintText">click here!</span>
+              </div>
+              <div className="tu-hintArrow tu-hintArrow--down" />
+            </div>
+          )}
         </div>
       </div>
 
       <BottomBar />
+
+      {tourStep !== null && (
+        <HomeTour
+          step={tourStep}
+          total={HOME_TOUR_STEPS.length}
+          onNext={() => {
+            if (tourStep < HOME_TOUR_STEPS.length - 1) {
+              setTourStep(tourStep + 1);
+            } else {
+              localStorage.setItem(TOUR_KEY, "1");
+              setTourStep(null);
+
+              window.setTimeout(() => setShowMenuHint(true), 10000);
+            }
+          }}
+          onSkip={() => {
+            localStorage.setItem(TOUR_KEY, "1");
+            setTourStep(null);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function HomeTour({
+  step, total, onNext, onSkip,
+}: { step: number; total: number; onNext: () => void; onSkip: () => void; }) {
+  const s = HOME_TOUR_STEPS[step];
+  const isLast = step === total - 1;
+  return (
+    <div className="ga-tourOverlay">
+      <div className="ga-tourCard" key={step}>
+        <div className="ga-tourTop">
+          <div className="ga-tourDots">
+            {HOME_TOUR_STEPS.map((_, i) => (
+              <span key={i} className={`ga-tourDot ${i === step ? "is-active" : i < step ? "is-done" : ""}`} />
+            ))}
+          </div>
+          <button className="ga-tourSkip" onClick={onSkip}>Skip</button>
+        </div>
+        <div className="ga-tourTitle">{s.title}</div>
+        <div className="ga-tourBody">{s.body}</div>
+        <button className="ga-tourNext" onClick={onNext}>
+          {isLast ? "Got it!" : "Next →"}
+        </button>
+      </div>
     </div>
   );
 }

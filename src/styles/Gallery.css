@@ -614,3 +614,103 @@
   opacity: 0.35;
   letter-spacing: 1px;
 }
+
+.ga-tourOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+  z-index: 300;
+  animation: gaFadeIn 200ms ease;
+}
+
+.ga-tourCard {
+  background: #f0eff4;
+  border-radius: 20px;
+  box-shadow: 0 32px 72px rgba(0, 0, 0, 0.28);
+  padding: 28px 32px 24px;
+  width: min(480px, calc(100vw - 40px));
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  animation: gaSlideUp 220ms ease;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ga-tourTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ga-tourDots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.ga-tourDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.15);
+  transition: background 200ms, transform 200ms;
+}
+
+.ga-tourDot.is-active {
+  background: rgba(60, 90, 130, 0.85);
+  transform: scale(1.25);
+}
+
+.ga-tourDot.is-done {
+  background: rgba(60, 90, 130, 0.35);
+}
+
+.ga-tourSkip {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.35);
+  background: none;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  padding: 0;
+  transition: color 120ms;
+}
+.ga-tourSkip:hover { color: rgba(0, 0, 0, 0.6); }
+
+.ga-tourTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: rgba(0, 0, 0, 0.85);
+  line-height: 1.25;
+}
+
+.ga-tourBody {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.ga-tourNext {
+  align-self: flex-end;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: rgba(60, 90, 130, 0.88);
+  color: #fff;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: opacity 120ms, transform 80ms;
+}
+.ga-tourNext:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}

@@ -2,26 +2,23 @@
   position: sticky;
   top: 0;
   z-index: 60;
-
   height: 56px;
   width: 100%;
   background: #b7b6c3;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   padding: 0 14px;
   box-sizing: border-box;
   padding-right: 60px;
-
   box-shadow:
     0 2px 0 rgba(0, 0, 0, 0.12),
     0 12px 18px rgba(0, 0, 0, 0.12);
 }
 
 .ntb-title {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
   font-weight: 700;
   color: rgba(0, 0, 0, 0.75);
   letter-spacing: 0.2px;
@@ -29,27 +26,26 @@
 }
 
 .ntb-right {
+  position: relative;
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .ntb-menuBtn {
-  position: fixed;   
-  top: 9px;          
+  position: fixed;
+  top: 9px;
   right: 14px;
-
   width: 38px;
   height: 38px;
   border-radius: 10px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   background: rgba(255, 255, 255, 0.85);
-
   display: grid;
   place-items: center;
   cursor: pointer;
   transition: transform 140ms ease, filter 140ms ease, opacity 140ms ease;
-
-  z-index: 9999;    
+  z-index: 9999;
 }
 
 .ntb-menuBtn:active {
@@ -70,15 +66,13 @@
   background: rgba(0, 0, 0, 0.65);
 }
 
-
-
 .ntb-menuOverlay {
-  position: fixed; 
+  position: fixed;
   inset: 0;
   opacity: 0;
   pointer-events: none;
   transition: opacity 180ms ease;
-  z-index: 20; 
+  z-index: 20;
 }
 
 .ntb-menuOverlay.is-open {
@@ -113,13 +107,12 @@
   border: 1px solid rgba(0, 0, 0, 0.12);
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 0 14px 26px rgba(0, 0, 0, 0.14);
-
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
   font-weight: 700;
   font-size: 14px;
   line-height: 1.1;
   white-space: pre-line;
-
   cursor: pointer;
   transition: transform 140ms ease, filter 140ms ease;
 }
@@ -129,20 +122,88 @@
   filter: brightness(1.03);
 }
 
+.ntb-tl { top: 290px; left: 60px; }
+.ntb-tr { top: 320px; left: 260px; }
+.ntb-bl { top: 460px; left: 110px; }
+.ntb-br { top: 520px; left: 290px; }
 
-.ntb-tl {
-  top: 290px;
-  left: 60px;
+
+
+.ntb-hint {
+  position: fixed;
+  top: 9px;
+  right: 60px;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  z-index: 9999;
+  animation: ntbHintBlink 1.4s ease-in-out infinite;
+  white-space: nowrap;
 }
-.ntb-tr {
-  top: 320px;
-  left: 260px;
+
+.ntb-hintBubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
-.ntb-bl {
-  top: 460px;
-  left: 110px;
+
+.ntb-hand { font-size: 16px; }
+
+.ntb-hintText {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.75);
 }
-.ntb-br {
-  top: 520px;
-  left: 290px;
+
+.ntb-hintArrow {
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  transform: rotate(45deg);
+  margin-left: -6px;
+}
+
+.ntb-menuItem.ntb-highlight-unused {
+  animation: ntbPulse 1.4s ease-in-out infinite;
+  outline: 2px solid rgba(60, 90, 130, 0.6);
+}
+
+@keyframes ntbHintBlink {
+  0%, 100% { opacity: 0.4; transform: translateX(3px); }
+  50%       { opacity: 1;   transform: translateX(0px); }
+}
+
+@keyframes ntbPulse {
+  0%, 100% { box-shadow: 0 14px 26px rgba(0,0,0,0.14), 0 0 0 0   rgba(60, 90, 130, 0.35); }
+  50%       { box-shadow: 0 14px 26px rgba(0,0,0,0.14), 0 0 0 8px rgba(60, 90, 130, 0); }
+}
+
+
+.ntb-arcHint {
+  position: absolute;
+  top: 480px;
+  left: 278px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  animation: ntbHintBlink 1.4s ease-in-out infinite;
+}
+
+.ntb-hintArrow--down {
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.88);
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  transform: rotate(45deg);
+  margin-top: -6px;
 }

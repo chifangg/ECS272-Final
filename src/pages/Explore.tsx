@@ -1,15 +1,46 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import * as d3 from "d3";
 import { TutorialTopBar } from "../components/TutorialTopBar";
 import { BottomBar } from "../components/BottomBar";
 
 import "../styles/Tutorial.css";
 import "../styles/Explore.css";
+import "../styles/Gallery.css";
 
 import worldMap from "../assets/world_map.svg";
 import pinIcon from "../assets/pin.png";
 
+const TOUR_KEY = "explore-toured";
+
+const EXPLORE_TOUR_STEPS = [
+  {
+    id: "welcome",
+    title: "Explore Your Own",
+    body: "This is your personal exploration tool. All 560 cities are shown on the map, filter by budget, travel duration, and the experiences you care about most.",
+  },
+  {
+    id: "filter",
+    title: "Use the filters",
+    body: "Select your budget level, ideal trip duration, and the experiences you want from the filter bar below. Hit Apply Filter to update the map.",
+  },
+  {
+    id: "map",
+    title: "Read the map",
+    body: "Brighter, larger dots are stronger matches for your filters. Hover any city to see details and compare it against the last city you hovered.",
+  },
+  {
+    id: "LLM_planning",
+    title: "LLM-based travel plan generation",
+    body: "After clicking create your plan, the system will generate a personalized travel plan for your selected city. This may take up a little while, please be patient!",
+  },
+  {
+    id: "done",
+    title: "That's it! you're ready!",
+    body: "The tutorial ends here. Feel free to explore freely, filter cities, and find your perfect travel destination. Have fun!",
+  },
+
+];
 type MenuKey = "gallery" | "tutorial" | "explore" | "main";
 type ExperienceKey = "culture" | "adventure" | "nature" | "beaches" | "nightlife" | "cuisine" | "wellness" | "urban" | "seclusion";
 
@@ -124,6 +155,7 @@ function getTopExperience(city: ExploreCity): ExperienceKey {
 
 export default function Explore() {
   const navigate = useNavigate();
+  const location = useLocation();
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const mapImgRef = useRef<HTMLImageElement | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -132,6 +164,15 @@ export default function Explore() {
   const [cities, setCities] = useState<ExploreCity[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+
+  const forceTour = (location.state as any)?.tutorial === true;
+  const [tourStep, setTourStep] = useState<number | null>(null);
+  useEffect(() => {
+    if (forceTour || !localStorage.getItem(TOUR_KEY)) {
+      setTourStep(0);
+    }
+  }, [forceTour]);
 
   const [draftBudget, setDraftBudget] = useState("Any");
   const [draftDuration, setDraftDuration] = useState("Any");
@@ -149,7 +190,7 @@ export default function Explore() {
   const [planDurationDays, setPlanDurationDays] = useState(5);
   const lastHoveredCityRef = useRef<ExploreCity | null>(null);
 
-  // Zoom state
+
   const [zoom, setZoom] = useState(1);
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
@@ -412,7 +453,13 @@ export default function Explore() {
   function onPick(item: MenuKey) {
     if (item === "gallery") return navigate("/gallery");
     if (item === "explore") return navigate("/explore");
-    if (item === "tutorial") return navigate("/tutorial");
+    if (item === "tutorial") {
+      localStorage.removeItem("gallery-toured");
+      localStorage.removeItem("home-toured");
+      localStorage.removeItem("explore-toured");
+      window.location.href = "/tutorial";
+      return;
+    }
     return navigate("/home");
   }
 
@@ -771,6 +818,51 @@ export default function Explore() {
       </div>
 
       <BottomBar />
+
+      {tourStep !== null && (
+        <ExploreTour
+          step={tourStep}
+          total={EXPLORE_TOUR_STEPS.length}
+          onNext={() => {
+            if (tourStep < EXPLORE_TOUR_STEPS.length - 1) {
+              setTourStep(tourStep + 1);
+            } else {
+              localStorage.setItem(TOUR_KEY, "1");
+              setTourStep(null);
+            }
+          }}
+          onSkip={() => {
+            localStorage.setItem(TOUR_KEY, "1");
+            setTourStep(null);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function ExploreTour({
+  step, total, onNext, onSkip,
+}: { step: number; total: number; onNext: () => void; onSkip: () => void; }) {
+  const s = EXPLORE_TOUR_STEPS[step];
+  const isLast = step === total - 1;
+  return (
+    <div className="ga-tourOverlay">
+      <div className="ga-tourCard" key={step}>
+        <div className="ga-tourTop">
+          <div className="ga-tourDots">
+            {EXPLORE_TOUR_STEPS.map((_, i) => (
+              <span key={i} className={`ga-tourDot ${i === step ? "is-active" : i < step ? "is-done" : ""}`} />
+            ))}
+          </div>
+          {!isLast && <button className="ga-tourSkip" onClick={onSkip}>Skip</button>}
+        </div>
+        <div className="ga-tourTitle">{s.title}</div>
+        <div className="ga-tourBody">{s.body}</div>
+        <button className="ga-tourNext" onClick={onNext}>
+          {isLast ? "Start exploring! →" : "Next →"}
+        </button>
+      </div>
     </div>
   );
 }

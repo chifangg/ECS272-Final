@@ -11,22 +11,15 @@ import pinIcon from "../assets/pin.png";
 type MenuKey = "gallery" | "tutorial" | "explore" | "main";
 
 export default function Tutorial() {
-  const [menuEnabled, setMenuEnabled] = useState(false);
-  const [showHint1, setShowHint1] = useState(false);
+  const isTourMode = !localStorage.getItem("gallery-toured") && !localStorage.getItem("home-toured") && !localStorage.getItem("explore-toured");
+  const [menuEnabled, setMenuEnabled] = useState(true);
+  const [showHint1, setShowHint1] = useState(isTourMode);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [showHint2, setShowHint2] = useState(false);
 
   const hint2TimerRef = useRef<number | null>(null);
   const navigate = useNavigate();
-  useEffect(() => {
-    const t = window.setTimeout(() => {
-      setMenuEnabled(true);
-      setShowHint1(true);
-    }, 1000);
-
-    return () => window.clearTimeout(t);
-  }, []);
 
   useEffect(() => {
     if (!menuOpen) {
@@ -77,12 +70,15 @@ export default function Tutorial() {
   }
 
   if (item === "tutorial") {
-    navigate("/tutorial"); 
+    localStorage.removeItem("gallery-toured");
+    localStorage.removeItem("home-toured");
+    localStorage.removeItem("explore-toured");
+    window.location.href = "/tutorial";
     return;
   }
 
   if (item === "main") {
-    console.log("main viz not wired yet");
+    navigate("/Home");
     return;
   }
 }
@@ -101,6 +97,21 @@ export default function Tutorial() {
 
           <img className="tu-pin tu-pin-tl" src={pinIcon} alt="" draggable={false} />
           <img className="tu-pin tu-pin-tr" src={pinIcon} alt="" draggable={false} />
+
+
+          {isTourMode && (
+            <div className={`tu-introBubble ${showHint1 ? "is-show" : ""}`}>
+              <div className="tu-introText">
+                Let's start exploring the system with the tutorial!
+              </div>
+              <div className="tu-introArrow" aria-hidden="true">
+                <svg viewBox="0 0 120 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 56 C30 56, 80 10, 116 6" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" fill="none" strokeDasharray="5 4"/>
+                  <path d="M108 2 L116 6 L110 13" stroke="rgba(0,0,0,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                </svg>
+              </div>
+            </div>
+          )}
 
           <div className="tu-legend" aria-label="legend placeholder">
             <div className="tu-legendTitle">legend details</div>

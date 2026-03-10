@@ -18,7 +18,12 @@ export default function IntroAfterLoad() {
         open={open}
         title="Where is my next destination?"
         buttonText="continue my journey"
-        onContinue={() => navigate("/starter", { replace: true })}
+        onContinue={() => {
+          localStorage.removeItem("gallery-toured");
+          localStorage.removeItem("home-toured");
+          localStorage.removeItem("explore-toured");
+          navigate("/starter", { replace: true });
+        }}
       />
     </div>
   );

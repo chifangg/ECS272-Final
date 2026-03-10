@@ -1,9 +1,33 @@
 import { useMemo, useState, useRef, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { NormalTopBar } from "../components/NormalTopBar";
 import { BottomBar } from "../components/BottomBar";
 import "../styles/Gallery.css";
 
 import pinIcon from "../assets/pin.png";
+
+const TOUR_KEY = "gallery-toured";
+
+const TOUR_STEPS = [
+  {
+    id: "welcome",
+    title: "Welcome to Viz Gallery!",
+    body: "This page shows 7 built-in visualizations based on our dataset of 560 cities worldwide. Each chart reveals a different angle of the travel decision space.",
+    highlight: "marquee",
+  },
+  {
+    id: "marquee",
+    title: "Browse the charts",
+    body: "Scroll through the marquee at the top to see all visualizations. Hover to pause, click the open icon to view full screen, or click the i button to learn more about each chart.",
+    highlight: "marquee",
+  },
+  {
+    id: "filter",
+    title: "Find the most relevant chart for you",
+    body: "Tell us what you're curious about by selecting one or more questions below, then hit Apply. We'll rank and recommend the two most relevant visualizations for your interests.",
+    highlight: "filter",
+  },
+];
 
 
 type VizItem = {
@@ -208,12 +232,24 @@ export default function Gallery() {
     []
   );
 
+  const location = useLocation();
   const totalViz = items.length; 
   const [loadedCount, setLoadedCount] = useState(0);
   const [hoverIdx, setHoverIdx] = useState(0);
   const [selectedFactors, setSelectedFactors] = useState<string[]>([]);
   const [appliedFactors, setAppliedFactors] = useState<string[]>([]);
   const [modalItem, setModalItem] = useState<VizItem | null>(null);
+
+
+  const forceTour = (location.state as any)?.tutorial === true;
+  const [tourStep, setTourStep] = useState<number | null>(null);
+  const [showMenuHint, setShowMenuHint] = useState(false);
+
+  useEffect(() => {
+    if (forceTour || !localStorage.getItem(TOUR_KEY)) {
+      setTourStep(0);
+    }
+  }, [forceTour]);
 
   const handleLoaded = useCallback(() => {
     setLoadedCount(c => Math.min(c + 1, totalViz));
@@ -254,7 +290,7 @@ export default function Gallery() {
 
   return (
     <div className="ga-root" aria-label="gallery page">
-      <NormalTopBar />
+      <NormalTopBar showMenuHint={showMenuHint} />
 
       <div className="ga-stage">
         <div className="ga-canvas">
@@ -280,7 +316,7 @@ export default function Gallery() {
             <div className="ga-sub">
               Here are different visualizations based on different factor selections.
               <br />
-              Hover <span className="ga-i-inline">i</span> for more explanation!
+              Click <span className="ga-i-inline">i</span> for more explanation!
               &nbsp;·&nbsp;
               Use the factor filter below to find the most relevant charts.
             </div>
@@ -371,7 +407,63 @@ export default function Gallery() {
 
       {modalItem && <VizModal item={modalItem} onClose={() => setModalItem(null)} />}
 
+      {tourStep !== null && (
+        <GalleryTour
+          step={tourStep}
+          total={TOUR_STEPS.length}
+          onNext={() => {
+            if (tourStep < TOUR_STEPS.length - 1) {
+              setTourStep(tourStep + 1);
+            } else {
+              localStorage.setItem(TOUR_KEY, "1");
+              setTourStep(null);
+              window.setTimeout(() => setShowMenuHint(true), 5000);
+            }
+          }}
+          onSkip={() => {
+            localStorage.setItem(TOUR_KEY, "1");
+            setTourStep(null);
+          }}
+        />
+      )}
+
       <BottomBar />
+    </div>
+  );
+}
+
+
+function GalleryTour({
+  step,
+  total,
+  onNext,
+  onSkip,
+}: {
+  step: number;
+  total: number;
+  onNext: () => void;
+  onSkip: () => void;
+}) {
+  const s = TOUR_STEPS[step];
+  const isLast = step === total - 1;
+
+  return (
+    <div className="ga-tourOverlay">
+      <div className="ga-tourCard" key={step}>
+        <div className="ga-tourTop">
+          <div className="ga-tourDots">
+            {TOUR_STEPS.map((_, i) => (
+              <span key={i} className={`ga-tourDot ${i === step ? "is-active" : i < step ? "is-done" : ""}`} />
+            ))}
+          </div>
+          <button className="ga-tourSkip" onClick={onSkip}>Skip</button>
+        </div>
+        <div className="ga-tourTitle">{s.title}</div>
+        <div className="ga-tourBody">{s.body}</div>
+        <button className="ga-tourNext" onClick={onNext}>
+          {isLast ? "Got it!" : "Next →"}
+        </button>
+      </div>
     </div>
   );
 }
