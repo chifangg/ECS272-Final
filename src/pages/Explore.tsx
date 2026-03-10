@@ -27,7 +27,7 @@ const EXPLORE_TOUR_STEPS = [
   {
     id: "map",
     title: "Read the map",
-    body: "Brighter, larger dots are stronger matches for your filters. Hover any city to see details and compare it against the last city you hovered.",
+    body: "Hover any city to see details and compare it against the last city you hovered.",
   },
   {
     id: "LLM_planning",
