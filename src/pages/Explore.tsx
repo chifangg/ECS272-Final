@@ -394,8 +394,8 @@ export default function Explore() {
         if (!t || t.avg < tempMin || t.avg > tempMax) return false;
       }
       if (experiences.length > 0) {
-        const hasAny = experiences.some((key) => city.scores[key] >= 4);
-        if (!hasAny) return false;
+        const hasAll = experiences.every((key) => city.scores[key] >= 3);
+        if (!hasAll) return false;
       }
       return true;
     });
@@ -478,6 +478,9 @@ export default function Explore() {
 
   function toggleDraftExperience(key: ExperienceKey) {
     setDraftExperiences((prev) =>
+      prev.includes(key) ? prev.filter((v) => v !== key) : [...prev, key]
+    );
+    setExperiences((prev) =>
       prev.includes(key) ? prev.filter((v) => v !== key) : [...prev, key]
     );
   }
@@ -800,7 +803,7 @@ export default function Explore() {
               <span className="tu-dot" /> <span>Matched city</span>
             </div>
             {experiences.length > 0 && (
-              <div className="tu-legendEtc">Experience score ≥ 3</div>
+              <div className="tu-legendEtc">All selected experiences ≥ 3/5</div>
             )}
             {loadError
               ? <div className="tu-legendEtc">Error: {loadError}</div>
