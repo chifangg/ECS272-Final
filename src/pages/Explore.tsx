@@ -85,6 +85,34 @@ const EXPERIENCE_LABELS: Record<ExperienceKey, string> = {
 const DURATION_OPTIONS = ["Short trip", "One week", "Long trip"];
 const MAP_BASE_WIDTH = 612;
 const MAP_BASE_HEIGHT = 250;
+const MONTH_OPTIONS = [
+  { key: "1", label: "Jan" },
+  { key: "2", label: "Feb" },
+  { key: "3", label: "Mar" },
+  { key: "4", label: "Apr" },
+  { key: "5", label: "May" },
+  { key: "6", label: "Jun" },
+  { key: "7", label: "Jul" },
+  { key: "8", label: "Aug" },
+  { key: "9", label: "Sep" },
+  { key: "10", label: "Oct" },
+  { key: "11", label: "Nov" },
+  { key: "12", label: "Dec" },
+] as const;
+const MONTHLY_TEMPS: Record<string, { avg: number; max: number; min: number }> = {
+  "1": { avg: 3.7, max: 7.8, min: 0.4 },
+  "2": { avg: 7.1, max: 12, min: 2.8 },
+  "3": { avg: 10.5, max: 15.5, min: 5.5 },
+  "4": { avg: 13.8, max: 18.9, min: 8.7 },
+  "5": { avg: 17.9, max: 22.5, min: 13.4 },
+  "6": { avg: 23.5, max: 28.5, min: 18.1 },
+  "7": { avg: 25.8, max: 30.8, min: 20.5 },
+  "8": { avg: 25.2, max: 30.4, min: 20.2 },
+  "9": { avg: 20.8, max: 26, min: 16.1 },
+  "10": { avg: 15.2, max: 19.6, min: 11.5 },
+  "11": { avg: 8.8, max: 12.5, min: 5.6 },
+  "12": { avg: 4.7, max: 8.2, min: 1.9 },
+};
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 6;
@@ -177,10 +205,12 @@ export default function Explore() {
   const [draftBudget, setDraftBudget] = useState("Any");
   const [draftDuration, setDraftDuration] = useState("Any");
   const [draftExperiences, setDraftExperiences] = useState<ExperienceKey[]>([]);
+  const [draftMonth, setDraftMonth] = useState("Any");
 
   const [budgetLevel, setBudgetLevel] = useState("Any");
   const [duration, setDuration] = useState("Any");
   const [experiences, setExperiences] = useState<ExperienceKey[]>([]);
+  const [travelMonth, setTravelMonth] = useState("Any");
 
   const [mapBox, setMapBox] = useState({ left: 0, top: 0, width: 0, height: 0 });
   const [hoveredCity, setHoveredCity] = useState<{ city: ExploreCity; x: number; y: number } | null>(null);
@@ -419,6 +449,13 @@ export default function Explore() {
     if (experiences.length === 0) return "All experiences";
     return experiences.map((k) => EXPERIENCE_LABELS[k]).join(", ");
   }, [experiences]);
+  const selectedMonthInfo = useMemo(() => {
+    if (draftMonth === "Any") return null;
+    const monthLabel = MONTH_OPTIONS.find((m) => m.key === draftMonth)?.label ?? draftMonth;
+    const temp = MONTHLY_TEMPS[draftMonth];
+    if (!temp) return null;
+    return { monthLabel, temp };
+  }, [draftMonth]);
 
   const compareMetrics = useMemo(() => {
     if (!hoveredCity || !compareCity || hoveredCity.city.id === compareCity.id) return null;
@@ -476,6 +513,7 @@ export default function Explore() {
     setBudgetLevel(draftBudget);
     setDuration(draftDuration);
     setExperiences(draftExperiences);
+    setTravelMonth(draftMonth);
     setHoveredCity(null);
     setCompareCity(null);
     lastHoveredCityRef.current = null;
@@ -485,9 +523,11 @@ export default function Explore() {
     setDraftBudget("Any");
     setDraftDuration("Any");
     setDraftExperiences([]);
+    setDraftMonth("Any");
     setBudgetLevel("Any");
     setDuration("Any");
     setExperiences([]);
+    setTravelMonth("Any");
     setHoveredCity(null);
     setCompareCity(null);
     lastHoveredCityRef.current = null;
@@ -530,6 +570,8 @@ export default function Explore() {
         },
         durationDays: planDurationDays,
         selectedExperiences: experiences.map((k) => EXPERIENCE_LABELS[k]),
+        travelMonth: travelMonth === "Any" ? null : travelMonth,
+        travelMonthTemperature: travelMonth !== "Any" ? MONTHLY_TEMPS[travelMonth] : null,
       },
     });
   }
@@ -616,6 +658,11 @@ export default function Explore() {
                   <div className="ex-hover-title">
                     {compareMetrics.previous.city}, {compareMetrics.previous.country}
                   </div>
+                  {selectedMonthInfo ? (
+                    <div className="ex-hover-meta">
+                      {selectedMonthInfo.monthLabel} Temp: Avg {selectedMonthInfo.temp.avg.toFixed(1)}°C ({selectedMonthInfo.temp.min.toFixed(1)}°C - {selectedMonthInfo.temp.max.toFixed(1)}°C)
+                    </div>
+                  ) : null}
                   <div className="ex-hover-meta">Budget: {compareMetrics.previous.budgetLevel}</div>
                   <div className="ex-hover-meta">Durations: {compareMetrics.previous.idealDurations.join(", ") || "N/A"}</div>
                   <div className="ex-hover-meta">Best: {EXPERIENCE_LABELS[compareMetrics.previousTop]}</div>
@@ -636,6 +683,11 @@ export default function Explore() {
                   <div className="ex-hover-title">
                     {compareMetrics.current.city}, {compareMetrics.current.country}
                   </div>
+                  {selectedMonthInfo ? (
+                    <div className="ex-hover-meta">
+                      {selectedMonthInfo.monthLabel} Temp: Avg {selectedMonthInfo.temp.avg.toFixed(1)}°C ({selectedMonthInfo.temp.min.toFixed(1)}°C - {selectedMonthInfo.temp.max.toFixed(1)}°C)
+                    </div>
+                  ) : null}
                   <div className="ex-hover-meta">Budget: {compareMetrics.current.budgetLevel}</div>
                   <div className="ex-hover-meta">Durations: {compareMetrics.current.idealDurations.join(", ") || "N/A"}</div>
                   <div className="ex-hover-meta">Best: {EXPERIENCE_LABELS[compareMetrics.currentTop]}</div>
@@ -665,6 +717,11 @@ export default function Explore() {
               <div className="ex-hover-title">
                 {hoveredCity.city.city}, {hoveredCity.city.country}
               </div>
+              {selectedMonthInfo ? (
+                <div className="ex-hover-meta">
+                  {selectedMonthInfo.monthLabel} Temp: Avg {selectedMonthInfo.temp.avg.toFixed(1)}°C ({selectedMonthInfo.temp.min.toFixed(1)}°C - {selectedMonthInfo.temp.max.toFixed(1)}°C)
+                </div>
+              ) : null}
               <div className="ex-hover-meta">Budget: {hoveredCity.city.budgetLevel}</div>
               <div className="ex-hover-meta">Durations: {hoveredCity.city.idealDurations.join(", ") || "N/A"}</div>
               <div className="ex-hover-meta">Match: {getMatchScore(hoveredCity.city, experiences)}/10</div>
@@ -792,6 +849,23 @@ export default function Explore() {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="ex-control">
+            <label htmlFor="month-filter">Travel month</label>
+            <select id="month-filter" value={draftMonth} onChange={(e) => setDraftMonth(e.target.value)}>
+              <option value="Any">Any</option>
+              {MONTH_OPTIONS.map((month) => (
+                <option key={month.key} value={month.key}>
+                  {month.label}
+                </option>
+              ))}
+            </select>
+            <div className="ex-month-hover">
+              {draftMonth !== "Any"
+                ? `Selected ${MONTH_OPTIONS.find((m) => m.key === draftMonth)?.label} Avg ${MONTHLY_TEMPS[draftMonth].avg.toFixed(1)}°C`
+                : "Select a month to preview avg temp"}
+            </div>
           </div>
 
           <div className="ex-filterbar-actions">

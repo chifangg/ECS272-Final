@@ -9,8 +9,8 @@
   flex-direction: column !important;
   align-items: center !important;
   justify-content: flex-start !important;
-  gap: 40px;
-  padding: 20px 20px 0;
+  gap: 14px;
+  padding: 12px 20px 8px;
   overflow: visible !important;
 }
 
@@ -18,7 +18,7 @@
   overflow: hidden;
   top: 10px;
   width: min(1700px, calc(100vw - 40px)) !important;
-  height: min(900px, calc(100vh - 56px - 64px - 90px)) !important;
+  height: min(820px, calc(100vh - 56px - 64px - 220px)) !important;
   flex-shrink: 0;
 }
 
@@ -324,11 +324,12 @@
 .ex-filterbar {
   width: min(1700px, calc(100vw - 40px));
   flex-shrink: 0;
+  margin-bottom: 6px;
   border-radius: 14px;
   background: rgba(236, 236, 236, 0.97);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 20px rgba(0, 0, 0, 0.08);
   display: grid;
-  grid-template-columns: 1fr 1.6fr 1fr auto;
+  grid-template-columns: 1fr 1.5fr 1fr 1.3fr auto;
   gap: 10px;
   padding: 20px 14px;
   align-items: stretch;
@@ -420,6 +421,9 @@
 }
 
 @media (max-width: 960px) {
+  .ex-canvas {
+    height: min(760px, calc(100vh - 56px - 64px - 280px)) !important;
+  }
   .ex-filterbar {
     grid-template-columns: 1fr 1fr;
     gap: 8px;
@@ -430,6 +434,9 @@
 }
 
 @media (max-width: 600px) {
+  .ex-canvas {
+    height: min(680px, calc(100vh - 56px - 64px - 340px)) !important;
+  }
   .ex-filterbar { grid-template-columns: 1fr; }
   .ex-apply, .ex-count { grid-column: 1; }
   .ex-hover-compare {
@@ -484,4 +491,13 @@
   flex-direction: column;
   gap: 6px;
   align-self: end;
+}
+
+.ex-month-hover {
+  margin-top: 3px;
+  min-height: 14px;
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.62);
 }

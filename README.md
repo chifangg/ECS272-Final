@@ -15,7 +15,11 @@ Have fun exploring!
 ## Set-up process
 1. git clone
 2. npm install
-3. npm run dev
+3. export OpenAI key for travel plan generation feature:
+   ```bash
+   export OPENAI_API_KEY=your_api_key_here
+   ```
+4. npm run dev
 
 ## Main Pages introduction
 ### Tutorial
