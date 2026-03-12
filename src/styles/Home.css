@@ -57,7 +57,7 @@
   transform: translate(-50%, -50%);
   cursor: pointer;
   pointer-events: all;
-  border: 1.5px solid rgba(255, 255, 255, 1);
+  border: 2.5px solid rgba(255, 255, 255, 1);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   padding: 0;
   box-sizing: content-box;
