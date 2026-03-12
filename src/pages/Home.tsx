@@ -70,36 +70,36 @@ const FACTORS: Record<FactorKey, {
   escape: {
     label: "Escape",
     tagline: "Disconnect & breathe",
-    color: "#6a9e82",
-    glowColor: "rgba(106,158,130,0.45)",
+    color: "#4ade80",
+    glowColor: "rgba(74,222,128,0.45)",
     weights: { nature: 2, seclusion: 2.5, wellness: 1.5 },
   },
   buzz: {
     label: "Buzz",
     tagline: "City energy & flavor",
-    color: "#b87355",
-    glowColor: "rgba(184,115,85,0.45)",
+    color: "#f97316",
+    glowColor: "rgba(249,115,22,0.45)",
     weights: { nightlife: 2.5, urban: 2, cuisine: 1.5 },
   },
   unwind: {
     label: "Unwind",
     tagline: "Sun, sea & serenity",
-    color: "#6a8faa",
-    glowColor: "rgba(106,143,170,0.45)",
+    color: "#38bdf8",
+    glowColor: "rgba(56,189,248,0.45)",
     weights: { beaches: 3, wellness: 2, nature: 1 },
   },
   enrich: {
     label: "Enrich",
     tagline: "Deepen your perspective",
-    color: "#7d7aa0",
-    glowColor: "rgba(125,122,160,0.45)",
+    color: "#c084fc",
+    glowColor: "rgba(192,132,252,0.45)",
     weights: { culture: 3, cuisine: 1.5, adventure: 1 },
   },
   thrill: {
     label: "Thrill",
     tagline: "Push your limits",
-    color: "#b8955a",
-    glowColor: "rgba(184,149,90,0.45)",
+    color: "#fbbf24",
+    glowColor: "rgba(251,191,36,0.45)",
     weights: { adventure: 3, nature: 1.5, urban: 0.5 },
   },
 };
@@ -307,19 +307,21 @@ export default function Home() {
 
       ranked.forEach(({ city, score }, idx) => {
         const existing = result.find((r) => r.city.id === city.id);
-        const dominant = getDominantFactor(city).factor;
-        const rank = idx + 1; 
+        const rank = idx + 1;
         if (!existing) {
           result.push({
             city,
             x: mapBox.left + city.mapX * mapBox.width,
             y: mapBox.top + city.mapY * mapBox.height,
-            dominant,
+            dominant: fk,
             score,
             rank,
           });
-        } else if (rank < existing.rank) {
-          existing.rank = rank; 
+        } else {
+          if (rank < existing.rank) {
+            existing.rank = rank;
+            existing.dominant = fk;
+          }
         }
       });
     }
@@ -361,7 +363,7 @@ export default function Home() {
               transformOrigin: "center center",
             }}
           >
-            <img className="tu-map" src={worldMap} alt="world map" draggable={false} ref={mapImgRef} style={{ opacity: 0.75 }} />
+            <img className="tu-map" src={worldMap} alt="world map" draggable={false} ref={mapImgRef} />
             <img className="tu-pin tu-pin-tl" src={pinIcon} alt="" draggable={false} />
             <img className="tu-pin tu-pin-tr" src={pinIcon} alt="" draggable={false} />
           </div>
